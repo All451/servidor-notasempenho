@@ -1,0 +1,18 @@
+📦 projeto
+├── 📂 src
+│   ├── 📂 config
+│   │   └── 📄 database.js
+│   ├── 📂 controllers
+│   │   └── 📄 UsuarioController.js
+│   ├── 📂 models
+│   │   └── 📄 Usuario.model.js
+│   ├── 📂 routes
+│   │   |
+│   │   └── 📄 usuario.routes.js
+│   ├── 📂 middlewares
+│   │   └── 📄 auth.middleware.js
+│   └── 📄 server.js
+├── 📄 .env
+├── 📄 .gitignore
+├── 📄 package.json
+└── 📄 README.md
