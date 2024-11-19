@@ -4,7 +4,7 @@ const { conectarDB } = require('./config/database');
 const sequelize = require('./config/database');
 const cors = require('cors');
 
-const app = express();git 
+const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Conectar ao banco de dados
