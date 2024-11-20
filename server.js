@@ -28,9 +28,11 @@ app.use(cors({
 // Rotas
 const usuarioRoutes = require('./routes/usuario.routes');
 const authRoutes = require('./routes/auth.routes');
+const notasRoutes = require('./routes/notas.routes')
 
 app.use('/', usuarioRoutes);
 app.use('/auth', authRoutes);
+app.use('/notas', notasRoutes)
 
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
