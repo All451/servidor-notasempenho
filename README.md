@@ -1,6 +1,7 @@
 # Projeto de Servidor Express
 
-Este projeto é um servidor web construído com Node.js e Express, que se conecta a um banco de dados usando Sequelize. Ele fornece rotas para gerenciar usuários, autenticação e notas de empenho.
+Este projeto é um servidor web construído com Node.js e Express, que se conecta a um banco de dados SQLITE
+usando Sequelize. Ele fornece rotas para gerenciar usuários, autenticação e notas de empenho.
 
 ## Índice
 
