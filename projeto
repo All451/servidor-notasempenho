@@ -1,18 +1,31 @@
-📦 projeto
-├── 📂 src
-│   ├── 📂 config
-│   │   └── 📄 database.js
-│   ├── 📂 controllers
-│   │   └── 📄 UsuarioController.js
-│   ├── 📂 models
-│   │   └── 📄 Usuario.model.js
-│   ├── 📂 routes
-│   │   |
-│   │   └── 📄 usuario.routes.js
-│   ├── 📂 middlewares
-│   │   └── 📄 auth.middleware.js
-│   └── 📄 server.js
-├── 📄 .env
-├── 📄 .gitignore
-├── 📄 package.json
-└── 📄 README.md
+config/
+├── database.js
+
+controllers/
+├── NotaEmpenhoController.js
+├── usuario.controller.js
+
+middlewares/
+├── auth.middleware.js
+
+models/
+├── ItemNota.js
+├── NotaEmpenho.js
+├── usuario.model.js
+
+routes/
+├── auth.routes.js
+├── notas.routes.js
+├── usuario.routes.js
+
+utils/
+├── jwt.utils.js
+├── validations.js
+
+.gitignore
+LICENSE
+README.md
+package-lock.json
+package.json
+projeto/
+server.js
