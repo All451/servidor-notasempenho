@@ -1,27 +1,28 @@
 config/
 ├── database.js
-
+|
 controllers/
 ├── NotaEmpenhoController.js
 ├── usuario.controller.js
-
+|
 middlewares/
 ├── auth.middleware.js
-
+|
 models/
 ├── ItemNota.js
 ├── NotaEmpenho.js
 ├── usuario.model.js
-
+|
 routes/
 ├── auth.routes.js
 ├── notas.routes.js
 ├── usuario.routes.js
-
+|
 utils/
 ├── jwt.utils.js
 ├── validations.js
-
+|
+|
 .gitignore
 LICENSE
 README.md
