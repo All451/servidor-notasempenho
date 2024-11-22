@@ -1,13 +1,16 @@
 # Projeto de Servidor Express
 
-Este projeto é um servidor web construído com Node.js e Express, que se conecta a um banco de dados SQLITE
-usando Sequelize. Ele fornece rotas para gerenciar usuários, autenticação e notas de empenho.
+Este projeto é um servidor web construído com Node.js e Express, que se conecta a um banco de dados usando Sequelize. Ele fornece rotas para gerenciar usuários, autenticação e notas de empenho.
 
 ## Índice
 
 - [Instalação](#instalação)
 - [Uso](#uso)
 - [Rotas](#rotas)
+- [Exemplo de Requisição](#exemplo-de-requisição)
+  - [Cadastro de Usuário](#cadastro-de-usuário)
+  - [Login](#login)
+  - [Adicionar Nota de Empenho](#adicionar-nota-de-empenho)
 - [Contribuição](#contribuição)
 - [Licença](#licença)
 
@@ -43,6 +46,16 @@ As seguintes rotas estão disponíveis:
 
 ### Usuários
 - `POST /usuarios`: Cria um novo usuário. Exige `nome`, `email` e `senha` no corpo da requisição.
+  - **Requisição Exemplo**:
+    ```bash
+    curl -X POST http://localhost:3000/usuarios \
+    -H "Content-Type: application/json" \
+    -d '{
+        "nome": "Sara",
+        "email": "sara@teste.com",
+        "senha": "123456"
+    }'
+    ```
   - **Resposta de sucesso**: 
     - Código: 201
     - Mensagem: `Usuário criado com sucesso`
@@ -61,6 +74,12 @@ As seguintes rotas estão disponíveis:
 
 ### Autenticação
 - `POST /auth/login`: Realiza login. Exige `email` e `senha` no corpo da requisição.
+  - **Requisição Exemplo**:
+    ```bash
+    curl -X POST http://localhost:3000/auth/login \
+    -H "Content-Type: application/json" \
+    -d '{"email": "sara@teste.com", "senha": "123456"}'
+    ```
   - **Resposta de sucesso**: 
     - Código: 200
     - Dados retornados: `token`, `usuario` (contendo `id`, `nome`, `email`)
@@ -71,43 +90,39 @@ As seguintes rotas estão disponíveis:
 - `POST /auth/logout`: Realiza logout do usuário autenticado.
 
 ### Notas de Empenho
-- `POST /addNotaComItens`: Adiciona uma nova nota de empenho com itens. Exige os dados da nota no corpo da requisição.
+- `POST /notas/addNotaComItens`: Adiciona uma nova nota de empenho com itens. Exige os dados da nota no corpo da requisição.
+  - **Requisição Exemplo**:
+    ```bash
+    curl -X POST http://localhost:3000/notas/addNotaComItens \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer seu_token_aqui" \
+    -d '{
+        "num_nota_empenho": "001",
+        "num_pregao": "123456",
+        "nome_orgao": "Ministério da Educação",
+        "local_da_entrega": "Rua Exemplo, 123",
+        "data_cadastro": "2023-10-01",
+        "usuario_id": 6,
+        "valor_total_nota": 500.00,
+        "itens": [
+            {
+                "nome_item": "Item 1",
+                "quantidade_total": 10,
+                "valor_total": 100.00
+            },
+            {
+                "nome_item": "Item 2",
+                "quantidade_total": 5,
+                "valor_total": 50.00
+            }
+        ]
+    }'
+    ```
   - **Resposta de sucesso**: 
     - Código: 201
-    - Mensagem: `Nota de empenho criada com sucesso`
+    - Mensagem: `Nota cadastrada com sucesso!`
   - **Resposta de erro**: 
-    - Código: 500 em caso de erro ao criar a nota.
-
-- `GET /notas`: Lista todas as notas de empenho.
-  - **Resposta de sucesso**: 
-    - Código: 200
-    - Dados: Lista de notas de empenho.
-  - **Resposta de erro**: 
-    - Código: 500 em caso de erro ao listar as notas.
-
-- `GET /notas/:id`: Obtém detalhes de uma nota específica. Exige o `id` da nota na URL.
-  - **Resposta de sucesso**: 
-    - Código: 200
-    - Dados: Detalhes da nota.
-  - **Resposta de erro**: 
-    - Código: 404 se a nota não for encontrada.
-    - Código: 500 em caso de erro ao buscar a nota.
-
-- `PUT /notas/:id`: Atualiza uma nota existente. Exige o `id` da nota na URL e os dados atualizados no corpo da requisição.
-  - **Resposta de sucesso**: 
-    - Código: 200
-    - Mensagem: `Nota de empenho atualizada com sucesso`
-  - **Resposta de erro**: 
-    - Código: 404 se a nota não for encontrada.
-    - Código: 500 em caso de erro ao atualizar a nota.
-
-- `DELETE /notas/:id`: Remove uma nota existente. Exige o `id` da nota na URL.
-  - **Resposta de sucesso**: 
-    - Código: 204
-    - Mensagem: `Nota de empenho removida com sucesso`
-  - **Resposta de erro**: 
-    - Código: 404 se a nota não for encontrada.
-    - Código: 500 em caso de erro ao remover a nota.
+    - Código: 400 ou 500, dependendo do tipo de erro.
 
 ## Contribuição
 
