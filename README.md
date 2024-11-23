@@ -11,6 +11,7 @@ Este projeto é um servidor web construído com Node.js e Express, que se conect
   - [Cadastro de Usuário](#cadastro-de-usuário)
   - [Login](#login)
   - [Adicionar Nota de Empenho](#adicionar-nota-de-empenho)
+- [Tecnologias Utilizadas](#tecnologias-utilizadas)
 - [Contribuição](#contribuição)
 - [Licença](#licença)
 
@@ -123,6 +124,59 @@ As seguintes rotas estão disponíveis:
     - Mensagem: `Nota cadastrada com sucesso!`
   - **Resposta de erro**: 
     - Código: 400 ou 500, dependendo do tipo de erro.
+
+## Tecnologias Utilizadas
+
+Este projeto utiliza as seguintes bibliotecas e dependências:
+
+1. **Express**: 
+   - Um framework web para Node.js que facilita a criação de APIs e aplicações web.
+   - **Instalação**: 
+     ```bash
+     npm install express
+     ```
+
+2. **Sequelize**: 
+   - Um ORM (Object-Relational Mapping) para Node.js que facilita a interação com bancos de dados SQL.
+   - **Instalação**: 
+     ```bash
+     npm install sequelize
+     ```
+
+3. **SQLite3** (ou outro driver de banco de dados, dependendo do que você está usando):
+   - Biblioteca necessária se você estiver usando SQLite como seu banco de dados.
+   - **Instalação**: 
+     ```bash
+     npm install sqlite3
+     ```
+
+4. **dotenv**: 
+   - Carrega variáveis de ambiente de um arquivo `.env` para `process.env`.
+   - **Instalação**: 
+     ```bash
+     npm install dotenv
+     ```
+
+5. **Cors**: 
+   - Middleware para habilitar CORS (Cross-Origin Resource Sharing) em sua aplicação Express.
+   - **Instalação**: 
+     ```bash
+     npm install cors
+     ```
+
+6. **Bcryptjs**: 
+   - Biblioteca para hashing de senhas, usada para proteger senhas de usuários.
+   - **Instalação**: 
+     ```bash
+     npm install bcryptjs
+     ```
+
+7. **Jsonwebtoken**: 
+   - Biblioteca para criar e verificar tokens JWT (JSON Web Tokens), usada para autenticação e autorização.
+   - **Instalação**: 
+     ```bash
+     npm install jsonwebtoken
+     ```
 
 ## Contribuição
 
