@@ -13,7 +13,19 @@ Este projeto é um servidor web construído com Node.js e Express, que se conect
   - [Adicionar Nota de Empenho](#adicionar-nota-de-empenho)
 - [Tecnologias Utilizadas](#tecnologias-utilizadas)
 - [Contribuição](#contribuição)
-- [Licença](#licença)
+- [Licença](#licença)             
+
+Autenticação
+
+POST /auth/login: Realiza login. Exige email e senha no corpo da requisição.
+
+    Requisição Exemplo:
+
+    curl -X POST http://localhost:3000/auth/login \
+    -H "Content-Type: application/json" \
+    -d '{"email": "sara@teste.com", "senha": "123456"}'
+
+
 
 ## Instalação
 

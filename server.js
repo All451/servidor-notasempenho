@@ -28,11 +28,13 @@ app.use(cors({
 // Rotas
 const usuarioRoutes = require('./routes/usuario.routes');
 const authRoutes = require('./routes/auth.routes');
-const notasRoutes = require('./routes/notas.routes')
+const notasRoutes = require('./routes/notas.routes');
+const entregaRoutes = require('./routes/entregas.routes');
 
 app.use('/', usuarioRoutes);
 app.use('/auth', authRoutes);
-app.use('/notas', notasRoutes)
+app.use('/notas', notasRoutes);
+app.use('/entrega', entregaRoutes);
 
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
