@@ -77,11 +77,30 @@ class NotaEmpenhoController {
         }
     }
 
-    // Método para listar todas as notas de empenho
+    // Método para listar todas as notas de empenho com seus itens
     static async listarNotas(req, res) {
         try {
             const notas = await NotaEmpenho.findAll(); // Busca todas as notas
-            return res.status(200).json(notas);
+
+            // Inclui os itens de cada nota na estrutura do retorno
+            const notasComItens = await Promise.all(
+                notas.map(async (nota) => {
+                    const itens = await ItemNota.findAll({
+                        where: { nota_empenho_id: nota.id }, // Busca os itens associados a essa nota
+                    });
+
+                    return {
+                        ...nota.toJSON(), // Converte a nota para JSON
+                        itens: itens.map((item) => ({
+                            nome_item: item.nome_item,
+                            quantidade_total: item.quantidade_total,
+                            valor_total: item.valor_total,
+                        })), // Estrutura os itens no mesmo formato usado no cadastro
+                    };
+                })
+            );
+
+            return res.status(200).json(notasComItens);
         } catch (error) {
             return res.status(500).json({ message: 'Erro ao listar notas', error });
         }

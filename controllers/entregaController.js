@@ -1,4 +1,3 @@
-// controllers/entregaController.js
 const NotaEmpenho = require('../models/NotaEmpenho');
 const ItemNota = require('../models/ItemNota');
 const Entrega = require('../models/entrega'); // Modelo de Entrega
@@ -12,11 +11,9 @@ class EntregaController {
         try {
             const { nota_empenho_id, data_entrega, usuario_id, local_entrega, orgao, itens_entregues } = req.body;
 
-            // Verifica se a nota de empenho existe
-            const nota = await NotaEmpenho.findByPk(nota_empenho_id);
-            if (!nota) {
-                await t.rollback();
-                return res.status(404).json({ message: 'Nota de empenho não encontrada' });
+            // Validações básicas
+            if (!nota_empenho_id || !data_entrega || !usuario_id || !local_entrega || !orgao || !Array.isArray(itens_entregues)) {
+                return res.status(400).json({ message: 'Todos os campos obrigatórios devem ser fornecidos.' });
             }
 
             // Cria o registro da entrega
@@ -29,39 +26,29 @@ class EntregaController {
             }, { transaction: t });
 
             // Adiciona os itens entregues
+            const itensCriados = [];
             for (const item of itens_entregues) {
-                const itemNota = await ItemNota.findOne({
-                    where: {
-                        id: item.item_nota_id,
-                        nota_empenho_id,
-                    },
-                });
-
-                if (!itemNota) {
+                if (!item.item_nota_id || !item.quantidade_entregue) {
                     await t.rollback();
-                    return res.status(400).json({ message: `Item de nota ${item.item_nota_id} não encontrado na nota de empenho` });
+                    return res.status(400).json({ message: 'Itens entregues devem conter item_nota_id e quantidade_entregue.' });
                 }
-
-                // Verifica se a quantidade entregue não excede a quantidade total da nota
-                if (item.quantidade_entregue > itemNota.quantidade_total) {
-                    await t.rollback();
-                    return res.status(400).json({
-                        message: `Quantidade entregue do item ${item.item_nota_id} excede a quantidade total da nota.`,
-                    });
-                }
-
-                await ItemEntrega.create({
+                const novoItem = await ItemEntrega.create({
                     entrega_id: novaEntrega.id,
                     item_nota_id: item.item_nota_id,
                     quantidade_entregue: item.quantidade_entregue,
                 }, { transaction: t });
+                itensCriados.push(novoItem);
             }
 
             await t.commit();
-            return res.status(201).json({ message: 'Entrega cadastrada com sucesso!', novaEntrega });
+            return res.status(201).json({
+                message: 'Entrega cadastrada com sucesso!',
+                entrega: novaEntrega,
+                itens_entregues: itensCriados,
+            });
         } catch (error) {
             await t.rollback();
-            return res.status(500).json({ message: 'Erro ao cadastrar entrega', error });
+            return res.status(500).json({ message: 'Erro ao cadastrar entrega', error: error.message });
         }
     }
 

@@ -6,7 +6,7 @@ const router = express.Router();
 const { buscarEntregas, addEntrega, buscarEntregaPorId, atualizarEntrega, deletarEntrega } = entregaController;
 
 // Rota para cadastrar uma nova entrega
-router.post('/entregas', addEntrega);
+router.post('/addEntrega',entregaController.addEntrega);
 
 // Rota para buscar todas as entregas
 router.get('/entregas', buscarEntregas);
