@@ -59,13 +59,14 @@ As seguintes rotas estão disponíveis:
 - `POST /usuarios`: Cria um novo usuário. Exige `nome`, `email` e `senha` no corpo da requisição.
   - **Requisição Exemplo**:
     ```bash
+    
      curl -X POST http://localhost:3000/auth/registrar \
--H "Content-Type: application/json" \
--d '{
+    -H "Content-Type: application/json" \
+    -d '{
     "nome": "João Silva",
     "email": "joao.silva@email.com",
     "senha": "senhaSegura123"
-}'
+    }'
     ```
   - **Resposta de sucesso**: 
     - Código: 201
