@@ -19,13 +19,11 @@ Autenticação
 
 POST /auth/login: Realiza login. Exige email e senha no corpo da requisição.
 
-    Requisição Exemplo:
+ Requisição Exemplo:
 
-    curl -X POST http://localhost:3000/auth/login \
-    -H "Content-Type: application/json" \
-    -d '{"email": "sara@teste.com", "senha": "123456"}'
-
-
+    curl -X POST http://localhost:3000/auth/login -H "Content-Type: application/json" -d '{
+    "email": "joao.silva@email.com",
+    "senha": "senhaSegura123}'
 
 ## Instalação
 
@@ -61,13 +59,13 @@ As seguintes rotas estão disponíveis:
 - `POST /usuarios`: Cria um novo usuário. Exige `nome`, `email` e `senha` no corpo da requisição.
   - **Requisição Exemplo**:
     ```bash
-    curl -X POST http://localhost:3000/usuarios \
-    -H "Content-Type: application/json" \
-    -d '{
-        "nome": "Sara",
-        "email": "sara@teste.com",
-        "senha": "123456"
-    }'
+     curl -X POST http://localhost:3000/auth/registrar \
+-H "Content-Type: application/json" \
+-d '{
+    "nome": "João Silva",
+    "email": "joao.silva@email.com",
+    "senha": "senhaSegura123"
+}'
     ```
   - **Resposta de sucesso**: 
     - Código: 201
