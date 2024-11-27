@@ -19,7 +19,7 @@ sequelize.sync()
 // Middleware
 app.use(express.json());
 app.use(cors({
-  origin: 'https://stunning-space-palm-tree-jjg7w59q74725vxq-8080.app.github.dev',
+  origin: 'https://super-garbanzo-g4xv7x79r4pqhvjj7-8080.app.github.dev',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']

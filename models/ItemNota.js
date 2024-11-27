@@ -36,4 +36,4 @@ ItemNota.init({
     timestamps: true,
 });
 
-module.exports = ItemNota; 
+module.exports = ItemNota;

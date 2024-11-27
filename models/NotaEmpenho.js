@@ -49,4 +49,4 @@ NotaEmpenho.init({
     timestamps: true,
 });
 
-module.exports = NotaEmpenho; 
+module.exports = NotaEmpenho;

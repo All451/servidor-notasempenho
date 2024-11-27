@@ -81,3 +81,25 @@ exports.perfilUsuario = async (req, res) => {
         res.status(500).json({ mensagem: 'Erro ao buscar perfil' });
     }
 };
+
+exports.deleteUser = async (req, res) => {
+    const { id } = req.params;  // ID do usuário a ser excluído
+  
+    try {
+      // Tenta encontrar o usuário pelo ID
+      const usuario = await Usuario.findByPk(id);
+  
+      if (!usuario) {
+        return res.status(404).json({ mensagem: 'Usuário não encontrado' });
+      }
+  
+      // Deleta o usuário
+      await usuario.destroy();
+  
+      res.status(200).json({ mensagem: 'Usuário excluído com sucesso' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ mensagem: 'Erro ao excluir o usuário', erro: error.message });
+    }
+};
+  

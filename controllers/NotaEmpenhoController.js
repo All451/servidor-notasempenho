@@ -2,10 +2,13 @@ const NotaEmpenho = require('../models/NotaEmpenho');
 const ItemNota = require('../models/ItemNota');
 
 class NotaEmpenhoController {
+    // Método para adicionar uma nota com itens
     static async addNotaComItens(req, res) {
         try {
+            // Desestrutura os dados da requisição
             const { num_nota_empenho, num_pregao, nome_orgao, local_da_entrega, data_cadastro, usuario_id, valor_total_nota, itens } = req.body;
 
+            // Cria a nova nota de empenho
             const novaNota = await NotaEmpenho.create({
                 num_nota_empenho,
                 num_pregao,
@@ -16,7 +19,7 @@ class NotaEmpenhoController {
                 valor_total_nota
             });
 
-            // Adiciona os itens
+            // Adiciona os itens associados à nota
             for (const item of itens) {
                 await ItemNota.create({
                     nota_empenho_id: novaNota.id,
@@ -26,26 +29,31 @@ class NotaEmpenhoController {
                 });
             }
 
+            // Retorna a resposta de sucesso com a nova nota criada
             return res.status(201).json({ message: 'Nota cadastrada com sucesso!', novaNota });
         } catch (error) {
-            return res.status(500).json({ message: 'Erro ao cadastrar nota', error });
+            // Retorna erro caso ocorra algum problema
+            return res.status(500).json({ message: 'Erro ao cadastrar nota', error: error.message });
         }
     }
 
+    // Método para atualizar uma nota existente
     static async updateNota(req, res) {
         const { id } = req.params;
         const { num_nota_empenho, num_pregao, nome_orgao, local_da_entrega, data_cadastro, itens } = req.body;
 
         try {
+            // Busca a nota pela chave primária (id)
             const nota = await NotaEmpenho.findByPk(id);
             if (!nota) {
                 return res.status(404).json({ message: 'Nota não encontrada' });
             }
 
+            // Atualiza os dados da nota
             await nota.update({ num_nota_empenho, num_pregao, nome_orgao, local_da_entrega, data_cadastro });
 
-            // Atualiza os itens (lógica simplificada)
-            await ItemNota.destroy({ where: { nota_empenho_id: id } }); // Remove itens antigos
+            // Remove os itens antigos e adiciona os novos
+            await ItemNota.destroy({ where: { nota_empenho_id: id } });
             for (const item of itens) {
                 await ItemNota.create({
                     nota_empenho_id: id,
@@ -57,10 +65,11 @@ class NotaEmpenhoController {
 
             return res.status(200).json({ message: 'Nota atualizada com sucesso!' });
         } catch (error) {
-            return res.status(500).json({ message: 'Erro ao atualizar nota', error });
+            return res.status(500).json({ message: 'Erro ao atualizar nota', error: error.message });
         }
     }
 
+    // Método para excluir uma nota
     static async deleteNota(req, res) {
         const { id } = req.params;
 
@@ -70,39 +79,39 @@ class NotaEmpenhoController {
                 return res.status(404).json({ message: 'Nota não encontrada' });
             }
 
+            // Deleta a nota e os itens associados
             await nota.destroy();
             return res.status(200).json({ message: 'Nota removida com sucesso!' });
         } catch (error) {
-            return res.status(500).json({ message: 'Erro ao remover nota', error });
+            return res.status(500).json({ message: 'Erro ao remover nota', error: error.message });
         }
     }
 
-    // Método para listar todas as notas de empenho com seus itens
+    // Método para listar todas as notas com seus itens
     static async listarNotas(req, res) {
         try {
-            const notas = await NotaEmpenho.findAll(); // Busca todas as notas
+            const notas = await NotaEmpenho.findAll();
 
-            // Inclui os itens de cada nota na estrutura do retorno
             const notasComItens = await Promise.all(
                 notas.map(async (nota) => {
                     const itens = await ItemNota.findAll({
-                        where: { nota_empenho_id: nota.id }, // Busca os itens associados a essa nota
+                        where: { nota_empenho_id: nota.id },
                     });
 
                     return {
-                        ...nota.toJSON(), // Converte a nota para JSON
+                        ...nota.toJSON(),
                         itens: itens.map((item) => ({
                             nome_item: item.nome_item,
                             quantidade_total: item.quantidade_total,
                             valor_total: item.valor_total,
-                        })), // Estrutura os itens no mesmo formato usado no cadastro
+                        })),
                     };
                 })
             );
 
             return res.status(200).json(notasComItens);
         } catch (error) {
-            return res.status(500).json({ message: 'Erro ao listar notas', error });
+            return res.status(500).json({ message: 'Erro ao listar notas', error: error.message });
         }
     }
 
@@ -112,16 +121,16 @@ class NotaEmpenhoController {
 
         try {
             const nota = await NotaEmpenho.findByPk(id, {
-                include: [ItemNota] // Inclui os itens relacionados
+                include: [ItemNota]
             });
             if (!nota) {
                 return res.status(404).json({ message: 'Nota não encontrada' });
             }
             return res.status(200).json(nota);
         } catch (error) {
-            return res.status(500).json({ message: 'Erro ao obter detalhes da nota', error });
+            return res.status(500).json({ message: 'Erro ao obter detalhes da nota', error: error.message });
         }
     }
 }
 
-module.exports = NotaEmpenhoController; 
+module.exports = NotaEmpenhoController;
