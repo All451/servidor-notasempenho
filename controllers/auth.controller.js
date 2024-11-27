@@ -1,6 +1,10 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Usuario = require('../models/usuario.model');
+const { NotaEmpenho, ItemNota } = require('../models');  // Certifique-se de importar seus modelos corretamente
+
+
+
 
 exports.login = async (req, res) => {
     try {
@@ -84,22 +88,38 @@ exports.perfilUsuario = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
     const { id } = req.params;  // ID do usuário a ser excluído
-  
+
     try {
-      // Tenta encontrar o usuário pelo ID
-      const usuario = await Usuario.findByPk(id);
-  
-      if (!usuario) {
-        return res.status(404).json({ mensagem: 'Usuário não encontrado' });
-      }
-  
-      // Deleta o usuário
-      await usuario.destroy();
-  
-      res.status(200).json({ mensagem: 'Usuário excluído com sucesso' });
+        // Tenta encontrar o usuário pelo ID
+        const usuario = await Usuario.findByPk(id);
+
+        if (!usuario) {
+            return res.status(404).json({ mensagem: 'Usuário não encontrado' });
+        }
+
+        // Excluir as notas vinculadas ao usuário
+        const notas = await NotaEmpenho.findAll({ where: { usuario_id: id } });
+
+        if (notas.length > 0) {
+            // Excluir os itens de cada nota antes de excluir a nota
+            await ItemNota.destroy({
+                where: { nota_empenho_id: notas.map(nota => nota.id) }
+            });
+
+            // Agora exclua as notas vinculadas ao usuário
+            await NotaEmpenho.destroy({
+                where: { usuario_id: id }
+            });
+        }
+
+        // Deleta o usuário
+        await usuario.destroy();
+
+        res.status(200).json({ mensagem: 'Usuário e dados associados excluídos com sucesso' });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ mensagem: 'Erro ao excluir o usuário', erro: error.message });
+        console.error(error);
+        res.status(500).json({ mensagem: 'Erro ao excluir o usuário', erro: error.message });
     }
 };
+
   
