@@ -1,45 +1,25 @@
 const express = require('express');
+const { body, validationResult } = require('express-validator');
+const { login, registrarUsuario, perfilUsuario } = require('../controllers/auth.controller');
+const { authMiddleware } = require('../middlewares/auth.middleware');
+
 const router = express.Router();
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const Usuario = require('../models/usuario.model');
 
-router.post('/login', async (req, res) => {
-    try {
-        const { email, senha } = req.body;
-
-        // Verificar se o usuário existe
-        const usuario = await Usuario.findOne({ where: { email } });
-        if (!usuario) {
-            return res.status(400).json({ mensagem: 'Usuário não encontrado' });
+router.post('/registrar', 
+    body('email').isEmail().withMessage('E-mail inválido'),
+    body('senha').isLength({ min: 6 }).withMessage('Senha deve ter no mínimo 6 caracteres'),
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ erros: errors.array() });
         }
+        next();
+    },
+    registrarUsuario
+);
 
-        // Verificar senha
-        const senhaValida = await bcrypt.compare(senha, usuario.senha);
-        if (!senhaValida) {
-            return res.status(400).json({ mensagem: 'Senha inválida' });
-        }
+router.post('/login', login);
 
-        // Criar token JWT
-        const token = jwt.sign(
-            { id: usuario.id },
-            process.env.JWT_SECRET || 'sua_chave_secreta_aqui',
-            { expiresIn: '1d' }
-        );
+router.get('/perfil', authMiddleware, perfilUsuario);
 
-        res.json({
-            token,
-            usuario: {
-                id: usuario.id,
-                nome: usuario.nome,
-                email: usuario.email
-            }
-        });
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ mensagem: 'Erro no servidor' });
-    }
-});
-
-module.exports = router; 
+module.exports = router;

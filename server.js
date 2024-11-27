@@ -19,22 +19,29 @@ sequelize.sync()
 // Middleware
 app.use(express.json());
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: 'https://stunning-space-palm-tree-jjg7w59q74725vxq-8080.app.github.dev',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Rotas
-const usuarioRoutes = require('./routes/usuario.routes');
 const authRoutes = require('./routes/auth.routes');
 const notasRoutes = require('./routes/notas.routes');
 const entregaRoutes = require('./routes/entregas.routes');
 
-app.use('/', usuarioRoutes);
 app.use('/auth', authRoutes);
 app.use('/notas', notasRoutes);
 app.use('/entrega', entregaRoutes);
+
+sequelize.sync({ force: false })  // 'force: false' para não apagar os dados existentes
+    .then(() => {
+        console.log('Banco de dados e tabelas criados ou verificados!');
+    })
+    .catch((error) => {
+        console.error('Erro ao conectar ou criar banco de dados:', error);
+    });
+    
 
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);

@@ -1,28 +1,54 @@
-const express = require('express');
-const router = express.Router();
 const bcrypt = require('bcryptjs');
-const { authMiddleware } = require('../middlewares/auth.middleware');
+const jwt = require('jsonwebtoken');
 const Usuario = require('../models/usuario.model');
 
-router.post('/usuarios', async (req, res) => {
+exports.login = async (req, res) => {
+    try {
+        const { email, senha } = req.body;
+
+        const usuario = await Usuario.findOne({ where: { email } });
+        if (!usuario) {
+            return res.status(400).json({ mensagem: 'Usuário não encontrado' });
+        }
+
+        const senhaValida = await bcrypt.compare(senha, usuario.senha);
+        if (!senhaValida) {
+            return res.status(400).json({ mensagem: 'Senha inválida' });
+        }
+
+        const token = jwt.sign(
+            { id: usuario.id },
+            process.env.JWT_SECRET,
+            { expiresIn: '1d' }
+        );
+
+        res.json({
+            token,
+            usuario: {
+                id: usuario.id,
+                nome: usuario.nome,
+                email: usuario.email
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ mensagem: 'Erro no servidor' });
+    }
+};
+
+exports.registrarUsuario = async (req, res) => {
     try {
         const { nome, email, senha } = req.body;
 
-        // Verificar se usuário já existe
         const usuarioExistente = await Usuario.findOne({ where: { email } });
         if (usuarioExistente) {
             return res.status(400).json({ mensagem: 'Email já cadastrado' });
         }
 
-        // Criptografar a senha
-        const salt = await bcrypt.genSalt(10);
-        const senhaCriptografada = await bcrypt.hash(senha, salt);
-
-        // Criar novo usuário
         const usuario = await Usuario.create({
             nome,
             email,
-            senha: senhaCriptografada
+            senha // A senha será criptografada no hook do modelo
         });
 
         res.status(201).json({
@@ -33,19 +59,18 @@ router.post('/usuarios', async (req, res) => {
                 email: usuario.email
             }
         });
-
     } catch (error) {
         console.error(error);
         res.status(500).json({ mensagem: 'Erro ao criar usuário' });
     }
-});
+};
 
-router.get('/perfil', authMiddleware, async (req, res) => {
+exports.perfilUsuario = async (req, res) => {
     try {
         const usuario = await Usuario.findByPk(req.usuario.id, {
             attributes: ['id', 'nome', 'email']
         });
-        
+
         if (!usuario) {
             return res.status(404).json({ mensagem: 'Usuário não encontrado' });
         }
@@ -55,6 +80,4 @@ router.get('/perfil', authMiddleware, async (req, res) => {
         console.error(error);
         res.status(500).json({ mensagem: 'Erro ao buscar perfil' });
     }
-});
-
-module.exports = router; 
+};
