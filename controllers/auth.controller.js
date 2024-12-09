@@ -1,7 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Usuario = require('../models/usuario.model');
-const { NotaEmpenho, ItemNota } = require('../models');  // Certifique-se de importar seus modelos corretamente
+const NotaEmpenho = require('../models/NotaEmpenho')
+const ItemNota  = require('../models/ItemNota');  // Certifique-se de importar seus modelos corretamente
 
 
 
@@ -69,57 +70,123 @@ exports.registrarUsuario = async (req, res) => {
     }
 };
 
-exports.perfilUsuario = async (req, res) => {
+exports.getUserInfo = async (req, res) => {
     try {
-        const usuario = await Usuario.findByPk(req.usuario.id, {
-            attributes: ['id', 'nome', 'email']
-        });
-
-        if (!usuario) {
-            return res.status(404).json({ mensagem: 'Usuário não encontrado' });
-        }
-
-        res.json(usuario);
+      // O ID pode vir do parâmetro da URL ou do token
+      const userIdFromUrl = req.params.id;
+      const userIdFromToken = req.usuario; // Extraído do middleware
+  
+      // Verifique se o ID do usuário foi passado corretamente
+      console.log("User ID from URL:", userIdFromUrl);
+      console.log("User ID from Token:", userIdFromToken);
+  
+      // Busque o usuário no banco de dados
+      const user = await Usuario.findOne({
+        where: { id: userIdFromUrl || userIdFromToken },
+        attributes: { exclude: ['password'] }, // Exclui a senha do retorno
+      });
+      
+  
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      return res.json(user);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ mensagem: 'Erro ao buscar perfil' });
+      console.error(error);
+      return res.status(500).json({ message: 'Server error' });
     }
-};
+  };
+  
+  exports.deleteUser = async (req, res) => {
+      const { id } = req.params;
+  
+      try {
+          // Verifica se o modelo está definido
+          if (!Usuario || !NotaEmpenho || !ItemNota) {
+              return res.status(500).json({ mensagem: 'Modelos não definidos corretamente' });
+          }
+  
+          // Tenta encontrar o usuário pelo ID
+          const usuario = await Usuario.findByPk(id);
+  
+          if (!usuario) {
+              return res.status(404).json({ mensagem: 'Usuário não encontrado' });
+          }
+  
+          // Busca as notas vinculadas ao usuário
+          const notas = await NotaEmpenho.findAll({ where: { usuario_id: id } });
+          console.log('Notas encontradas:', notas);
+  
+          if (notas && notas.length > 0) {
+              // Excluir os itens de cada nota antes de excluir as notas
+              const notaIds = notas.map(nota => nota.id);
+              await ItemNota.destroy({
+                  where: { nota_empenho_id: notaIds }
+              });
+              console.log(`Itens das notas ${notaIds} excluídos`);
+  
+              // Agora exclua as notas vinculadas ao usuário
+              await NotaEmpenho.destroy({
+                  where: { usuario_id: id }
+              });
+              console.log(`Notas do usuário ${id} excluídas`);
+          }
+  
+          // Deleta o usuário
+          await usuario.destroy();
+          console.log(`Usuário ${id} excluído`);
+  
+          res.status(200).json({ mensagem: 'Usuário e dados associados excluídos com sucesso' });
+      } catch (error) {
+          console.error('Erro durante a exclusão:', error);
+          res.status(500).json({ 
+              mensagem: 'Erro ao excluir o usuário', 
+              erro: error.message 
+          });
+      }
+  };
+  
 
-exports.deleteUser = async (req, res) => {
-    const { id } = req.params;  // ID do usuário a ser excluído
-
-    try {
-        // Tenta encontrar o usuário pelo ID
-        const usuario = await Usuario.findByPk(id);
-
-        if (!usuario) {
-            return res.status(404).json({ mensagem: 'Usuário não encontrado' });
+  exports.updateUser = async (req, res) => {
+      const { id } = req.params; // Obtém o ID do usuário dos parâmetros da URL
+      const { nome, email, senha } = req.body; // Obtém os dados para atualização do corpo da requisição
+  
+      try {
+          // Verifica se o modelo está definido
+          if (!Usuario) {
+              return res.status(500).json({ mensagem: 'Modelo de usuário não definido corretamente' });
+          }
+  
+          // Tenta encontrar o usuário pelo ID
+          const usuario = await Usuario.findByPk(id);
+  
+          if (!usuario) {
+              return res.status(404).json({ mensagem: 'Usuário não encontrado' });
+          }
+  
+          // Atualiza os dados do usuário, verificando quais campos foram enviados
+          const camposAtualizados = {};
+          if (nome) camposAtualizados.nome = nome;
+          if (email) camposAtualizados.email = email;
+          if (senha) {
+            const saltRounds = 10; // Define o custo da criptografia (maior = mais seguro, mas mais lento)
+            camposAtualizados.senha = await bcrypt.hash(senha, saltRounds);
         }
-
-        // Excluir as notas vinculadas ao usuário
-        const notas = await NotaEmpenho.findAll({ where: { usuario_id: id } });
-
-        if (notas.length > 0) {
-            // Excluir os itens de cada nota antes de excluir a nota
-            await ItemNota.destroy({
-                where: { nota_empenho_id: notas.map(nota => nota.id) }
-            });
-
-            // Agora exclua as notas vinculadas ao usuário
-            await NotaEmpenho.destroy({
-                where: { usuario_id: id }
-            });
-        }
-
-        // Deleta o usuário
-        await usuario.destroy();
-
-        res.status(200).json({ mensagem: 'Usuário e dados associados excluídos com sucesso' });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ mensagem: 'Erro ao excluir o usuário', erro: error.message });
-    }
-};
-
+  
+          await usuario.update(camposAtualizados); // Atualiza o usuário no banco de dados
+  
+          res.status(200).json({
+              mensagem: 'Usuário atualizado com sucesso',
+              usuario: usuario // Retorna os dados atualizados
+          });
+      } catch (error) {
+          console.error('Erro ao atualizar usuário:', error);
+          res.status(500).json({ 
+              mensagem: 'Erro ao atualizar o usuário', 
+              erro: error.message 
+          });
+      }
+  };
+  
   
