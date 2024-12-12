@@ -7,9 +7,11 @@ const router = express.Router();
 // A validação do token de autenticação é feita antes de chamar a função do controlador
 router.post('/addNotaComItens', authMiddleware, NotaEmpenhoController.addNotaComItens);
 
-// Outras rotas
-router.get('/notas/:id', NotaEmpenhoController.detalhesNota);  // Detalhes da nota
-router.put('/notas/:id', NotaEmpenhoController.updateNota);  // Atualiza a nota
-router.delete('/notas/:id', NotaEmpenhoController.deleteNota);  // Deleta a nota
+// Detalhes da nota
+router.get('/list-note/:id', NotaEmpenhoController.detalhesNota);  
+// Atualiza a nota
+router.put('/update/:id', NotaEmpenhoController.updateNota);  
+// Deleta a nota
+router.delete('/delete/:id', NotaEmpenhoController.deleteNota);  
 
 module.exports = router;
