@@ -7,48 +7,51 @@ const sequelize = require('../config/database'); // Configuração do Sequelize
 class EntregaController {
     // Método para cadastrar uma entrega
     static async addEntrega(req, res) {
-        const t = await sequelize.transaction();
-        try {
-            const { nota_empenho_id, data_entrega, usuario_id, local_entrega, orgao, itens_entregues } = req.body;
+        const { nota_empenho_id, data_entrega, usuario_id, local_entrega, orgao, itens_entregues } = req.body;
 
-            // Validações básicas
-            if (!nota_empenho_id || !data_entrega || !usuario_id || !local_entrega || !orgao || !Array.isArray(itens_entregues)) {
-                return res.status(400).json({ message: 'Todos os campos obrigatórios devem ser fornecidos.' });
+        try {
+            // Verificar se a Nota de Empenho existe
+            const notaEmpenho = await NotaEmpenho.findByPk(nota_empenho_id);
+            if (!notaEmpenho) {
+                return res.status(400).json({ message: 'Nota de empenho não encontrada!' });
             }
 
-            // Cria o registro da entrega
-            const novaEntrega = await Entrega.create({
+            // Cadastrar a entrega na tabela 'Entregas'
+            const entrega = await Entrega.create({
                 nota_empenho_id,
                 data_entrega,
                 usuario_id,
                 local_entrega,
-                orgao,
-            }, { transaction: t });
+                orgao
+            });
 
-            // Adiciona os itens entregues
-            const itensCriados = [];
+            // Para cada item entregue, buscar o nome do item na tabela ItemNota
             for (const item of itens_entregues) {
-                if (!item.item_nota_id || !item.quantidade_entregue) {
-                    await t.rollback();
-                    return res.status(400).json({ message: 'Itens entregues devem conter item_nota_id e quantidade_entregue.' });
+                const itemNota = await ItemNota.findByPk(item.item_nota_id);  // Busca o item pela chave primária
+
+                if (!itemNota) {
+                    return res.status(400).json({ message: 'Item da nota não encontrado!' });
                 }
-                const novoItem = await ItemEntrega.create({
-                    entrega_id: novaEntrega.id,
+
+                // Cadastrar o ItemEntrega com o nome do item
+                await ItemEntrega.create({
+                    entrega_id: entrega.id,
                     item_nota_id: item.item_nota_id,
-                    quantidade_entregue: item.quantidade_entregue,
-                }, { transaction: t });
-                itensCriados.push(novoItem);
+                    nome_item: itemNota.nome_item,  // Preenchendo o nome do item
+                    quantidade_entregue: item.quantidade_entregue
+                });
             }
 
-            await t.commit();
-            return res.status(201).json({
+            res.status(201).json({
                 message: 'Entrega cadastrada com sucesso!',
-                entrega: novaEntrega,
-                itens_entregues: itensCriados,
+                entrega,
             });
         } catch (error) {
-            await t.rollback();
-            return res.status(500).json({ message: 'Erro ao cadastrar entrega', error: error.message });
+            console.error(error);
+            res.status(500).json({
+                message: 'Erro ao cadastrar entrega',
+                error: error.message
+            });
         }
     }
 

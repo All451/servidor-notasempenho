@@ -17,10 +17,14 @@ ItemEntrega.init({
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'ItemNota', // Nome da tabela de referência
-            key: 'id',
-        },
-        comment: 'ID do item na nota de empenho',
+            model: 'itens_nota',  // Verifique se o nome da tabela está correto
+            key: 'id'
+        }
+    },
+    nome_item: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        comment: 'Nome do item na nota de empenho',
     },
     quantidade_entregue: {
         type: DataTypes.INTEGER,
